@@ -1,39 +1,51 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const user = users.find(
-      (u) => u.email === email && u.phoneNumber === phone
-    );
-
-    if (!user) {
-      toast.error("Invalid email or phone number.");
-      return;
-    }
 
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match.");
       return;
     }
 
-    const updatedUsers = users.map((u) =>
-      u.email === email ? { ...u, password: newPassword } : u
-    );
+    try {
+      setLoading(true);
 
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    toast.success("Password reset successfully.");
-    navigate("/LoginPage");
+      // Call backend API
+      const res = await axios.post(
+        "https://e-shopping-backend-7vim.onrender.com/api/auth/forgot-password",
+        {
+          email,
+          phoneNumber: phone,
+          newPassword,
+        }
+      );
+
+      toast.success(res.data.message || "Password reset successful.");
+
+      // Redirect to login page after short delay
+      setTimeout(() => {
+        navigate("/LoginPage");
+      }, 1500);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Something went wrong. Try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,6 +53,7 @@ const ForgotPassword = () => {
       className="d-flex align-items-center justify-content-center min-vh-100"
       style={{ background: "#f79e1d" }}
     >
+      <ToastContainer />
       <div
         className="card shadow-lg p-4"
         style={{ width: "100%", maxWidth: "500px", borderRadius: "10px" }}
@@ -96,8 +109,12 @@ const ForgotPassword = () => {
           </div>
 
           <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-              Reset Password
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Resetting..." : "Reset Password"}
             </button>
           </div>
 
@@ -115,4 +132,5 @@ const ForgotPassword = () => {
     </div>
   );
 };
+
 export default ForgotPassword;
