@@ -37,12 +37,14 @@ const Header = () => {
     fetchCategories();
   }, []);
 
-  // ✅ Close hamburger menu after click (Bootstrap Collapse API)
+  // ✅ Improved closeMenu using Bootstrap Collapse instance
   const closeMenu = () => {
     const navbar = document.getElementById("navbarNav");
-    if (navbar && navbar.classList.contains("show")) {
-      const bsCollapse = new window.bootstrap.Collapse(navbar, { toggle: false });
-      bsCollapse.hide();
+    if (navbar && navbar.classList.contains("show") && window.bootstrap) {
+      const collapseInstance =
+        window.bootstrap.Collapse.getInstance(navbar) ||
+        new window.bootstrap.Collapse(navbar, { toggle: false });
+      collapseInstance.hide();
     }
   };
 
@@ -74,7 +76,7 @@ const Header = () => {
           />
         </button>
 
-        {/* ✅ Hamburger for mobile */}
+        {/* ✅ Hamburger */}
         <button
           className="navbar-toggler ms-auto"
           type="button"
@@ -117,7 +119,10 @@ const Header = () => {
                       <li key={cat._id}>
                         <button
                           className="dropdown-item"
-                          onClick={() => navigate(`/category/${cat.name}`)}
+                          onClick={() => {
+                            navigate(`/category/${cat.name}`);
+                            closeMenu();
+                          }}
                         >
                           {cat.name}
                         </button>
@@ -136,7 +141,10 @@ const Header = () => {
               {!isAuthenticated && (
                 <button
                   className="btn btn-outline-light me-2"
-                  onClick={() => navigate("/LoginPage")}
+                  onClick={() => {
+                    navigate("/LoginPage");
+                    closeMenu();
+                  }}
                 >
                   Login
                 </button>
@@ -156,7 +164,10 @@ const Header = () => {
                       <li>
                         <button
                           className="dropdown-item"
-                          onClick={() => navigate("/ProfilePage")}
+                          onClick={() => {
+                            navigate("/ProfilePage");
+                            closeMenu();
+                          }}
                         >
                           Profile
                         </button>
@@ -164,7 +175,10 @@ const Header = () => {
                       <li>
                         <button
                           className="dropdown-item"
-                          onClick={handleLogout}
+                          onClick={() => {
+                            handleLogout();
+                            closeMenu();
+                          }}
                         >
                           Logout
                         </button>
@@ -177,13 +191,19 @@ const Header = () => {
                     <>
                       <button
                         className="btn btn-outline-light me-2"
-                        onClick={() => navigate("/OrderHistory")}
+                        onClick={() => {
+                          navigate("/OrderHistory");
+                          closeMenu();
+                        }}
                       >
                         Order History
                       </button>
                       <button
                         className="btn btn-outline-light position-relative me-2"
-                        onClick={() => navigate("/Cart")}
+                        onClick={() => {
+                          navigate("/Cart");
+                          closeMenu();
+                        }}
                       >
                         Cart
                         {cartCount > 0 && (
@@ -200,25 +220,37 @@ const Header = () => {
                     <>
                       <button
                         className="btn btn-outline-warning me-2"
-                        onClick={() => navigate("/admin/products")}
+                        onClick={() => {
+                          navigate("/admin/products");
+                          closeMenu();
+                        }}
                       >
                         Products
                       </button>
                       <button
                         className="btn btn-outline-warning me-2"
-                        onClick={() => navigate("/admin/categories")}
+                        onClick={() => {
+                          navigate("/admin/categories");
+                          closeMenu();
+                        }}
                       >
                         Categories
                       </button>
                       <button
                         className="btn btn-outline-warning me-2"
-                        onClick={() => navigate("/admin/users")}
+                        onClick={() => {
+                          navigate("/admin/users");
+                          closeMenu();
+                        }}
                       >
                         Users
                       </button>
                       <button
                         className="btn btn-outline-warning me-2"
-                        onClick={() => navigate("/admin/orders")}
+                        onClick={() => {
+                          navigate("/admin/orders");
+                          closeMenu();
+                        }}
                       >
                         Orders
                       </button>
