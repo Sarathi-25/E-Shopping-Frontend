@@ -18,6 +18,7 @@ const Header = () => {
 
   const [searchInput, setSearchInput] = useState("");
   const [categories, setCategories] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // ✅ React state
   const navigate = useNavigate();
 
   const isAdmin = role === "admin";
@@ -37,16 +38,8 @@ const Header = () => {
     fetchCategories();
   }, []);
 
-  // ✅ Improved closeMenu using Bootstrap Collapse instance
-  const closeMenu = () => {
-    const navbar = document.getElementById("navbarNav");
-    if (navbar && navbar.classList.contains("show") && window.bootstrap) {
-      const collapseInstance =
-        window.bootstrap.Collapse.getInstance(navbar) ||
-        new window.bootstrap.Collapse(navbar, { toggle: false });
-      collapseInstance.hide();
-    }
-  };
+  // ✅ Close menu when clicking a button
+  const closeMenu = () => setIsMenuOpen(false);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -76,18 +69,20 @@ const Header = () => {
           />
         </button>
 
-        {/* ✅ Hamburger */}
+        {/* ✅ Hamburger toggler */}
         <button
           className="navbar-toggler ms-auto"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <span className="navbar-toggler-icon" />
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          {/* ✅ Desktop Layout */}
+        {/* ✅ Controlled collapse */}
+        <div
+          className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
+        >
+          {/* Desktop Layout */}
           <div className="row w-100 d-none d-lg-flex">
             <div className="col-sm-4 ms-auto">
               <form className="d-flex" onSubmit={handleSearchSubmit}>
@@ -261,7 +256,7 @@ const Header = () => {
             </div>
           </div>
 
-          {/* ✅ Mobile Layout */}
+          {/* Mobile Layout */}
           <div className="d-lg-none w-100 mt-3">
             {/* Search */}
             <form className="d-flex mb-2" onSubmit={handleSearchSubmit}>
