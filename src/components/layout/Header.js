@@ -22,7 +22,7 @@ const Header = () => {
 
   const isAdmin = role === "admin";
 
-  // ✅ Fetch categories from backend
+  // ✅ Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -37,206 +37,368 @@ const Header = () => {
     fetchCategories();
   }, []);
 
+  // ✅ Close hamburger menu after click (Bootstrap Collapse API)
+  const closeMenu = () => {
+    const navbar = document.getElementById("navbarNav");
+    if (navbar && navbar.classList.contains("show")) {
+      const bsCollapse = new window.bootstrap.Collapse(navbar, { toggle: false });
+      bsCollapse.hide();
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchInput.trim() === "") return;
     setSearchQuery(searchInput);
     navigate("/SearchResults");
+    closeMenu();
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-  <div className="container-fluid">
-    {/* ✅ Logo (always left) */}
-    <button
-      className="btn p-0 border-0 bg-transparent"
-      onClick={() => navigate("/HomePage")}
-      style={{ maxWidth: "150px" }}
-    >
-      <img
-        src={logo}
-        alt="E-Shopping Logo"
-        className="img-fluid"
-        style={{ maxHeight: "40px", borderRadius: "8px" }}
-      />
-    </button>
-
-    {/* ✅ Hamburger for mobile */}
-    <button
-      className="navbar-toggler ms-auto"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-    >
-      <span className="navbar-toggler-icon" />
-    </button>
-
-    <div className="collapse navbar-collapse" id="navbarNav">
-      {/* ✅ Desktop Layout */}
-      <div className="row w-100 d-none d-lg-flex">
-        <div className="col-sm-4 ms-auto">
-          <form className="d-flex" onSubmit={handleSearchSubmit}>
-            <input
-              className="form-control"
-              type="search"
-              placeholder="Search products"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            <button className="btn btn-primary ms-2" type="submit">
-              Search
-            </button>
-          </form>
-        </div>
-
-        <div className="col-md-6 d-flex justify-content-end align-items-center">
-          {/* (your existing desktop buttons: Category, Login/Profile, Cart, Orders, Admin links) */}
-        </div>
-      </div>
-
-      {/* ✅ Mobile Layout (stacked inside collapse) */}
-      <div className="d-lg-none w-100 mt-3">
-        {/* Search */}
-        <form className="d-flex mb-2" onSubmit={handleSearchSubmit}>
-          <input
-            className="form-control"
-            type="search"
-            placeholder="Search products"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+      <div className="container-fluid">
+        {/* ✅ Logo */}
+        <button
+          className="btn p-0 border-0 bg-transparent"
+          onClick={() => {
+            navigate("/HomePage");
+            closeMenu();
+          }}
+          style={{ maxWidth: "150px" }}
+        >
+          <img
+            src={logo}
+            alt="E-Shopping Logo"
+            className="img-fluid"
+            style={{ maxHeight: "40px", borderRadius: "8px" }}
           />
-          <button className="btn btn-primary ms-2" type="submit">
-            Search
-          </button>
-        </form>
+        </button>
 
-        {/* Category Dropdown */}
-        <div className="dropdown mb-2">
-          <button
-            className="btn btn-outline-light dropdown-toggle w-100"
-            data-bs-toggle="dropdown"
-          >
-            Category
-          </button>
-          <ul className="dropdown-menu w-100">
-            {categories.length > 0 ? (
-              categories.map((cat) => (
-                <li key={cat._id}>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate(`/category/${cat.name}`)}
-                  >
-                    {cat.name}
-                  </button>
-                </li>
-              ))
-            ) : (
-              <li>
-                <span className="dropdown-item text-muted">
-                  No categories
-                </span>
-              </li>
-            )}
-          </ul>
-        </div>
+        {/* ✅ Hamburger for mobile */}
+        <button
+          className="navbar-toggler ms-auto"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
 
-        {/* Auth/Profile */}
-        {!isAuthenticated ? (
-          <button
-            className="btn btn-outline-light w-100 mb-2"
-            onClick={() => navigate("/LoginPage")}
-          >
-            Login
-          </button>
-        ) : (
-          <>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          {/* ✅ Desktop Layout */}
+          <div className="row w-100 d-none d-lg-flex">
+            <div className="col-sm-4 ms-auto">
+              <form className="d-flex" onSubmit={handleSearchSubmit}>
+                <input
+                  className="form-control"
+                  type="search"
+                  placeholder="Search products"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+                <button className="btn btn-primary ms-2" type="submit">
+                  Search
+                </button>
+              </form>
+            </div>
+
+            <div className="col-md-6 d-flex justify-content-end align-items-center">
+              {/* Category Dropdown */}
+              <div className="dropdown me-2">
+                <button
+                  className="btn btn-outline-light dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                >
+                  Category
+                </button>
+                <ul className="dropdown-menu">
+                  {categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <li key={cat._id}>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => navigate(`/category/${cat.name}`)}
+                        >
+                          {cat.name}
+                        </button>
+                      </li>
+                    ))
+                  ) : (
+                    <li>
+                      <span className="dropdown-item text-muted">
+                        No categories
+                      </span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              {!isAuthenticated && (
+                <button
+                  className="btn btn-outline-light me-2"
+                  onClick={() => navigate("/LoginPage")}
+                >
+                  Login
+                </button>
+              )}
+
+              {isAuthenticated && (
+                <>
+                  {/* Profile Dropdown */}
+                  <div className="dropdown me-2">
+                    <button
+                      className="btn btn-outline-light dropdown-toggle fw-bold"
+                      data-bs-toggle="dropdown"
+                    >
+                      Hello, {fullName || "Profile"}
+                    </button>
+                    <ul className="dropdown-menu p-2">
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => navigate("/ProfilePage")}
+                        >
+                          Profile
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* User Links */}
+                  {!isAdmin && (
+                    <>
+                      <button
+                        className="btn btn-outline-light me-2"
+                        onClick={() => navigate("/OrderHistory")}
+                      >
+                        Order History
+                      </button>
+                      <button
+                        className="btn btn-outline-light position-relative me-2"
+                        onClick={() => navigate("/Cart")}
+                      >
+                        Cart
+                        {cartCount > 0 && (
+                          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {cartCount}
+                          </span>
+                        )}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Admin Links */}
+                  {isAdmin && (
+                    <>
+                      <button
+                        className="btn btn-outline-warning me-2"
+                        onClick={() => navigate("/admin/products")}
+                      >
+                        Products
+                      </button>
+                      <button
+                        className="btn btn-outline-warning me-2"
+                        onClick={() => navigate("/admin/categories")}
+                      >
+                        Categories
+                      </button>
+                      <button
+                        className="btn btn-outline-warning me-2"
+                        onClick={() => navigate("/admin/users")}
+                      >
+                        Users
+                      </button>
+                      <button
+                        className="btn btn-outline-warning me-2"
+                        onClick={() => navigate("/admin/orders")}
+                      >
+                        Orders
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ✅ Mobile Layout */}
+          <div className="d-lg-none w-100 mt-3">
+            {/* Search */}
+            <form className="d-flex mb-2" onSubmit={handleSearchSubmit}>
+              <input
+                className="form-control"
+                type="search"
+                placeholder="Search products"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <button className="btn btn-primary ms-2" type="submit">
+                Search
+              </button>
+            </form>
+
+            {/* Category Dropdown */}
             <div className="dropdown mb-2">
               <button
-                className="btn btn-outline-light dropdown-toggle w-100 fw-bold"
+                className="btn btn-outline-light dropdown-toggle w-100"
                 data-bs-toggle="dropdown"
               >
-                Hello, {fullName || "Profile"}
+                Category
               </button>
-              <ul className="dropdown-menu w-100 p-2">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => navigate("/ProfilePage")}
-                  >
-                    Profile
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                </li>
+              <ul className="dropdown-menu w-100">
+                {categories.length > 0 ? (
+                  categories.map((cat) => (
+                    <li key={cat._id}>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          navigate(`/category/${cat.name}`);
+                          closeMenu();
+                        }}
+                      >
+                        {cat.name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li>
+                    <span className="dropdown-item text-muted">
+                      No categories
+                    </span>
+                  </li>
+                )}
               </ul>
             </div>
 
-            {/* Order History */}
-            {!isAdmin && (
+            {/* Auth/Profile */}
+            {!isAuthenticated ? (
+              <button
+                className="btn btn-outline-light w-100 mb-2"
+                onClick={() => {
+                  navigate("/LoginPage");
+                  closeMenu();
+                }}
+              >
+                Login
+              </button>
+            ) : (
               <>
-                <button
-                  className="btn btn-outline-light w-100 mb-2"
-                  onClick={() => navigate("/OrderHistory")}
-                >
-                  Order History
-                </button>
+                <div className="dropdown mb-2">
+                  <button
+                    className="btn btn-outline-light dropdown-toggle w-100 fw-bold"
+                    data-bs-toggle="dropdown"
+                  >
+                    Hello, {fullName || "Profile"}
+                  </button>
+                  <ul className="dropdown-menu w-100 p-2">
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          navigate("/ProfilePage");
+                          closeMenu();
+                        }}
+                      >
+                        Profile
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          handleLogout();
+                          closeMenu();
+                        }}
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
-                {/* Cart */}
-                <button
-                  className="btn btn-outline-light w-100 position-relative mb-2"
-                  onClick={() => navigate("/Cart")}
-                >
-                  Cart
-                  {cartCount > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
+                {!isAdmin && (
+                  <>
+                    <button
+                      className="btn btn-outline-light w-100 mb-2"
+                      onClick={() => {
+                        navigate("/OrderHistory");
+                        closeMenu();
+                      }}
+                    >
+                      Order History
+                    </button>
+
+                    <button
+                      className="btn btn-outline-light w-100 position-relative mb-2"
+                      onClick={() => {
+                        navigate("/Cart");
+                        closeMenu();
+                      }}
+                    >
+                      Cart
+                      {cartCount > 0 && (
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                          {cartCount}
+                        </span>
+                      )}
+                    </button>
+                  </>
+                )}
+
+                {isAdmin && (
+                  <div className="d-flex flex-column">
+                    <button
+                      className="btn btn-outline-warning w-100 mb-2"
+                      onClick={() => {
+                        navigate("/admin/products");
+                        closeMenu();
+                      }}
+                    >
+                      Products
+                    </button>
+                    <button
+                      className="btn btn-outline-warning w-100 mb-2"
+                      onClick={() => {
+                        navigate("/admin/categories");
+                        closeMenu();
+                      }}
+                    >
+                      Categories
+                    </button>
+                    <button
+                      className="btn btn-outline-warning w-100 mb-2"
+                      onClick={() => {
+                        navigate("/admin/users");
+                        closeMenu();
+                      }}
+                    >
+                      Users
+                    </button>
+                    <button
+                      className="btn btn-outline-warning w-100 mb-2"
+                      onClick={() => {
+                        navigate("/admin/orders");
+                        closeMenu();
+                      }}
+                    >
+                      Orders
+                    </button>
+                  </div>
+                )}
               </>
             )}
-
-            {/* Admin Links */}
-            {isAdmin && (
-              <div className="d-flex flex-column">
-                <button
-                  className="btn btn-outline-warning w-100 mb-2"
-                  onClick={() => navigate("/admin/products")}
-                >
-                  Products
-                </button>
-                <button
-                  className="btn btn-outline-warning w-100 mb-2"
-                  onClick={() => navigate("/admin/categories")}
-                >
-                  Categories
-                </button>
-                <button
-                  className="btn btn-outline-warning w-100 mb-2"
-                  onClick={() => navigate("/admin/users")}
-                >
-                  Users
-                </button>
-                <button
-                  className="btn btn-outline-warning w-100 mb-2"
-                  onClick={() => navigate("/admin/orders")}
-                >
-                  Orders
-                </button>
-              </div>
-            )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</nav>
+    </nav>
   );
 };
 
