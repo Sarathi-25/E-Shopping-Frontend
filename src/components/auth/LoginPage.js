@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/api";
 import { toast } from "react-toastify";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode"; // fixed import
+import { jwtDecode } from "jwt-decode";
 
 const LoginPage = () => {
   const { handleLogin } = useContext(AppContext);
@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ---------------- NORMAL LOGIN ---------------- 
+  // ---------------- NORMAL LOGIN ----------------
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -41,7 +41,12 @@ const LoginPage = () => {
       if (!credential) throw new Error("No Google credential received");
 
       // Decode token for frontend greeting
-      const decoded = jwtDecode(credential);
+      let decoded = {};
+      try {
+        decoded = jwtDecode(credential);
+      } catch (err) {
+        console.warn("JWT decode failed:", err);
+      }
 
       // Send credential to backend for verification / login
       const res = await fetch(
@@ -57,7 +62,7 @@ const LoginPage = () => {
 
       if (data.token) {
         handleLogin(data, data.token);
-        toast.success(`Welcome ${decoded.name || "User"}!`);
+        toast.success(`Welcome ${decoded?.name || "User"}!`);
         navigate("/HomePage");
       } else {
         toast.error(data.message || "Google login failed");
@@ -152,7 +157,9 @@ const LoginPage = () => {
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              useOneTap
+              useOneTap={false}          // ✅ disable auto-login
+              ux_mode="popup"            // ✅ login in popup
+              prompt="select_account"    // ✅ always show account chooser
             />
           </div>
 
